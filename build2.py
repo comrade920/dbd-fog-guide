@@ -1,0 +1,94 @@
+"""안개 도감 데이터 빌드: tricky.lol raw JSON(ko/en) -> data.json"""
+import json,re,sys,os
+RAW=sys.argv[1] if len(sys.argv)>1 else 'raw'
+def L(n,loc): return json.load(open(os.path.join(RAW,f'{n}_{loc}.json')))
+KW={'haste':'이동 속도 증가','exhausted':'탈진','broken':'치료 불능','exposed':'약점 노출','undetectable':'감지 불가능',
+    'oblivious':'인지 불가능','endurance':'인내','hindered':'이동 속도 감소','blindness':'실명','elusive':'회피',
+    'hemorrhage':'출혈','mangled':'근육 손상','deepwound':'깊은 상흔','madness':'광기','incapacitated':'무능력'}
+INP={'activatablebutton1':'능력 활성화','activatablebutton2':'보조 능력','useitem':'아이템 사용'}
+RAR={'common':0,'uncommon':1,'rare':2,'veryrare':3,'visceral':4,'ultrarare':4,'artifact':5,'limited':5,'specialevent':5}
+unresolved=[]
+def num(x):
+    if isinstance(x,float):
+        x=round(x,2); return str(int(x)) if x==int(x) else str(x)
+    return str(x)
+def fill(s,tun,ctx):
+    if not s: return ''
+    tl={k.lower():v for k,v in (tun or {}).items()}
+    def rep(m):
+        kind,rest=m.group(1),m.group(2)
+        if kind=='Keyword': return '<b>'+KW.get(rest.lower(),rest)+'</b>'
+        if kind=='Input': return '<b>'+INP.get(rest.lower(),rest)+'</b>'
+        if kind=='Tunable':
+            key=rest.split('.')[-1].lower()
+            v=tl.get(key)
+            if v is None: unresolved.append((ctx,rest)); return '?'
+            if isinstance(v,list):
+                vals=[num(x) for x in v]; return vals[0] if len(set(vals))==1 else '/'.join(vals)
+            return num(v)
+        unresolved.append((ctx,m.group(0))); return '?'
+    s=re.sub(r'\{(Keyword|Input|Tunable)\.([^}]+)\}',rep,s)
+    s=re.sub(r'\{[^}]*\}', lambda m:(unresolved.append((ctx,m.group(0))) or '?'), s)
+    return s
+def clean(s):
+    s=s or ''
+    s=re.sub(r'<span class="Highlight\d">(.*?)</span>',r'<em>\1</em>',s,flags=re.S)
+    s=re.sub(r'</?(?!/?(?:b|i|li|ul|br|em)\b)[^>]*>','',s)
+    s=re.sub(r'(%)(?=%)','',s)  # "50%%" guard
+    s=re.sub(r'(\d)%%',r'\1%',s)
+    s=re.sub(r'\ufffd+','…',s)  # 원본 데이터에서 잘린 글자
+    s=re.sub(r'^(\s*<br>)+|(<br>\s*)+$','',s.strip())
+    return s
+ck,ce=L('characters','ko'),L('characters','en')
+ik,ie=L('items','ko'),L('items','en')
+pk,pe=L('perks','ko'),L('perks','en')
+ak,ae=L('addons','ko'),L('addons','en')
+ok_,oe=L('offerings','ko'),L('offerings','en')
+out={'version':json.load(open(os.path.join(RAW,'versions_ko.json')))['perks']['version'],'killers':[],'survivors':[],'entries':[]}
+power_owner={}
+chars={}
+for key,c in ck.items():
+    e=ce.get(key,{})
+    cid=c['id']; chars[key]=cid
+    rec={'id':cid,'ko':c['name'],'en':e.get('name',''),'d':clean(fill(c.get('bio'),c.get('tunables'),cid)),
+         'story':clean(fill(c.get('story'),None,cid)),'perks':c.get('perks') or [],'dlc':c.get('dlc')}
+    if c['role']=='killer':
+        it=c.get('item'); power_owner[it]=cid
+        p=ik.get(it,{}); pen=ie.get(it,{})
+        rec['power']={'ko':p.get('name',''),'en':pen.get('name',''),'d':clean(fill(p.get('description'),p.get('tunables'),it))}
+        out['killers'].append(rec)
+    else: out['survivors'].append(rec)
+def E(r): return {k:v for k,v in r.items() if v not in ('',None,[])}
+for key,p in pk.items():
+    owner=chars.get(str(p.get('character'))) if p.get('character') is not None else None
+    out['entries'].append(E({'c':'sp' if p['role']=='survivor' else 'kp','id':key,'ko':p['name'].strip(),'en':pe.get(key,{}).get('name','').strip(),
+        'd':clean(fill(p['description'],p.get('tunables'),key)),'o':owner}))
+for key,a in ak.items():
+    par=(a.get('parents') or [None])[0]
+    r={'id':key,'ko':(a['name'] or '').strip(),'en':(ae.get(key,{}).get('name') or '').strip(),
+       'd':clean(fill(a['description'],a.get('tunables'),key)),'r':RAR.get(a.get('rarity'))}
+    if a['type']=='poweraddon':
+        r['c']='ka'; r['o']=power_owner.get(par)
+    else:
+        r['c']='sa'; r['it']=a.get('item_type')
+    if not r['ko'] or r['ko'].startswith('@#'): continue
+    out['entries'].append(E(r))
+for key,i in ik.items():
+    if i['type']!='item' or not i.get('name'): continue
+    out['entries'].append(E({'c':'it','id':key,'ko':i['name'].strip(),'en':(ie.get(key,{}).get('name') or '').strip(),
+        'd':clean(fill(i['description'],i.get('tunables'),key)),'r':RAR.get(i.get('rarity')),'it':i.get('item_type')}))
+for key,o in ok_.items():
+    if o.get('retired') or not o.get('name'): continue
+    out['entries'].append(E({'c':'of','id':key,'ko':o['name'].strip(),'en':(oe.get(key,{}).get('name') or '').strip(),
+        'd':clean(fill(o['description'],o.get('tunables'),key)),'r':RAR.get(o.get('rarity')),'role':o.get('role') or 'shared'}))
+json.dump(out,open('data.json','w'),ensure_ascii=False,separators=(',',':'))
+import collections
+print('version',out['version'],'killers',len(out['killers']),'survivors',len(out['survivors']))
+print(collections.Counter(e['c'] for e in out['entries']))
+print('ka no owner',sum(1 for e in out['entries'] if e['c']=='ka' and not e.get('o')),'sa no type',sum(1 for e in out['entries'] if e['c']=='sa' and not e.get('it')),'no rarity',collections.Counter(e['c'] for e in out['entries'] if e['c'] in('ka','sa','it','of') and e.get('r') is None))
+print('unresolved',len(unresolved),unresolved[:12])
+print(os.path.getsize('data.json')//1024,'KB')
+# template.html이 있으면 데이터를 넣어 완성된 페이지를 만든다
+if os.path.exists('template.html'):
+    page=open('template.html').read().replace('__DATA__',open('data.json').read().replace('</','<\\/'))
+    open('dbd-fog-guide.html','w').write(page); print('dbd-fog-guide.html 생성')
