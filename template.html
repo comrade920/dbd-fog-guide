@@ -7,7 +7,7 @@
 :root{
   --bg:#f3f2f4; --surface:#ffffff; --sunk:#e8e6ea; --line:#d6d2da;
   --fg:#1d1a20; --muted:#6a6470; --accent:#8e1f2c; --accent-fg:#ffffff; --hl:#7a1724;
-  --r0:#8a6a4c; --r1:#b8901c; --r2:#3f8a3a; --r3:#7d48ad; --r4:#c0346e; --r5:#c26a12;
+  --r0:#8a6a4c; --r1:#b8901c; --r2:#3f8a3a; --r3:#7d48ad; --r4:#c0346e; --r5:#c26a12; --t1:#9a7400; --t2:#2f7d2a; --t3:#7a3fb0;
   --sv:#2d6c8f; --kl:#8e1f2c;
   --f-display:"Nanum Myeongjo","AppleMyungjo",serif;
   --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
@@ -16,12 +16,12 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#131116; --surface:#1c1920; --sunk:#25212a; --line:#36303d;
   --fg:#ebe7ee; --muted:#9a93a1; --accent:#c8434f; --accent-fg:#160c0e; --hl:#f08a92;
-  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a;
+  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
   --sv:#6bb1d6; --kl:#e0626c; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#131116; --surface:#1c1920; --sunk:#25212a; --line:#36303d;
   --fg:#ebe7ee; --muted:#9a93a1; --accent:#c8434f; --accent-fg:#160c0e; --hl:#f08a92;
-  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a;
+  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
   --sv:#6bb1d6; --kl:#e0626c; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -81,6 +81,14 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .desc{margin-top:14px;max-width:62ch}
 .desc li{margin:4px 0 4px 18px;list-style:"– "}
 .desc em{font-style:normal;font-weight:600;color:var(--hl)}
+.num{font-weight:700;color:var(--hl);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tier{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tier i{font-style:normal}
+.tier .t1{color:var(--t1)}.tier .t2{color:var(--t2)}.tier .t3{color:var(--t3)}
+.tier .sl{color:var(--muted);font-weight:400;margin:0 1px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend b{width:9px;height:9px;border-radius:2px;display:inline-block}
 .desc b{font-weight:600}
 .flavor{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--f-display);font-size:14px;color:var(--muted);max-width:62ch}
 .sec{margin-top:22px}
@@ -227,6 +235,29 @@ function renderList(){
     return `<button class="row" role="option" data-key="${e.key}" aria-selected="${state.sel===e.key}">${glyph(e)}<span style="min-width:0"><span class="nm">${hi(e.ko,state.q)}</span><span class="en">${hi(e.en||'',state.q)}${s===10?' · 설명에서 찾음':''}</span></span><span class="tag">${tag}</span></button>`}).join('')+
     (r.length>state.limit?`<button class="more" id="more">${(r.length-state.limit).toLocaleString()}개 더 보기</button>`:'');
 }
+/* 설명 속 숫자 강조: 단계별 수치(10/12.5/15)는 기술 등급 색, 고정 수치는 강조색 */
+const NUM_RE=/(\d+(?:\.\d+)?(?:\/\d+(?:\.\d+)?)*)(\s?(?:%|초|미터|m|개|회|단계|번|명|배|칸))?/g;
+function fmtNums(html){
+  let tiered=false;
+  const out=(html||'').split(/(<[^>]+>)/).map(part=>{
+    if(part.startsWith('<'))return part;
+    return part.replace(NUM_RE,(m,n,u)=>{
+      const unit=u||'';
+      const vals=n.split('/');
+      if(vals.length>=2&&vals.length<=3){
+        tiered=true;
+        const cls=vals.length===3?['t1','t2','t3']:['t1','t3'];
+        return `<span class="tier" title="기술 등급별 수치">${vals.map((v,i)=>`<i class="${cls[i]}">${v}</i>`).join('<i class="sl">/</i>')}${unit}</span>`;
+      }
+      return `<span class="num">${n}${unit}</span>`;
+    });
+  }).join('');
+  return {html:out,tiered};
+}
+function descBlock(html){
+  const r=fmtNums(html);
+  return `<div class="desc">${r.html}</div>`+(r.tiered?`<div class="legend"><span><b style="background:var(--t1)"></b>1단계</span><span><b style="background:var(--t2)"></b>2단계</span><span><b style="background:var(--t3)"></b>3단계</span></div>`:'');
+}
 function mini(e){return e?`<button class="mini" data-key="${e.key}">${glyph(e)}<span class="t">${esc(e.ko)}</span></button>`:''}
 function namu(e){return 'https://namu.wiki/Search?q='+encodeURIComponent(e.ko)}
 function renderDetail(){
@@ -249,14 +280,14 @@ function renderDetail(){
   h+='</div>';
   if(e.c==='k'||e.c==='s'){
     const c=chars[e.id];
-    if(c.c==='k'){h+=`<div class="sec"><h3>능력 · ${esc(c.power.ko)}</h3><div class="desc">${c.power.d||c.d}</div></div>`}
-    else h+=`<div class="desc">${c.d}</div>`;
+    if(c.c==='k'){h+=`<div class="sec"><h3>능력 · ${esc(c.power.ko)}</h3>${descBlock(c.power.d||c.d)}</div>`}
+    else h+=descBlock(c.d);
     h+=`<div class="sec"><h3>고유 기술</h3><div class="minis">${c.perks.map(id=>mini(perkKey(id))).join('')}</div></div>`;
     if(c.c==='k'){const ads=all.filter(a=>a.c==='ka'&&a.o===c.id).sort((a,b)=>a.r-b.r);
       h+=`<div class="sec"><h3>애드온 ${ads.length}개</h3><div class="minis">${ads.map(mini).join('')}</div></div>`}
     if(c.story)h+=`<div class="sec"><h3>배경 이야기</h3><div class="desc">${c.story}</div></div>`;
   } else {
-    h+=`<div class="desc">${e.d||''}</div>`;
+    h+=descBlock(e.d);
     if(e.f)h+=`<div class="flavor">${e.f}</div>`;
     if(o&&(e.c==='sp'||e.c==='kp')){const others=o.perks.filter(id=>id!==e.id).map(perkKey);
       h+=`<div class="sec"><h3>${esc(o.ko)}의 다른 고유 기술</h3><div class="minis">${others.map(mini).join('')}${mini(byKey[o.c+':'+o.id])}</div></div>`}
