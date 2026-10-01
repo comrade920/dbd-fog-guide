@@ -2,3 +2,4 @@ raw/
 .DS_Store
 __pycache__/
 logs/
+dbd-fog-guide.html
