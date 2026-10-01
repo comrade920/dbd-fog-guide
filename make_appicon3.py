@@ -1,4 +1,4 @@
-"""안개 도감 앱 아이콘 v3: 무료 사진(CC0/퍼블릭 도메인) 배경 + 가운데 'DBD'
+"""DBD 도감 앱 아이콘 v3: 무료 사진(CC0/퍼블릭 도메인) 배경 + 가운데 'DBD'
 사용: python3 make_appicon3.py <배경 사진> <글꼴> <출력 폴더> [crop_x 0~1] [tint r,g,b] [text_y 0~1]
 """
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance, ImageChops, ImageOps

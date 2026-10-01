@@ -1,4 +1,4 @@
-"""안개 도감 데이터 빌드: tricky.lol raw JSON(ko/en) -> data.json"""
+"""DBD 도감 데이터 빌드: tricky.lol raw JSON(ko/en) -> data.json"""
 import json,re,sys,os
 RAW=sys.argv[1] if len(sys.argv)>1 else 'raw'
 def L(n,loc): return json.load(open(os.path.join(RAW,f'{n}_{loc}.json')))
@@ -158,7 +158,7 @@ if os.path.exists('dbd-fog-guide.html'):
           '<link rel="apple-touch-icon" href="appicon/apple-touch-icon.png">\n'
           '<link rel="manifest" href="manifest.webmanifest">\n'
           '<meta name="theme-color" content="#131116">\n'
-          '<meta name="apple-mobile-web-app-title" content="안개 도감">\n'
+          '<meta name="apple-mobile-web-app-title" content="DBD 도감">\n'
           '<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n'
           '<meta name="author" content="comrade920">\n<meta name="copyright" content="© 2026 comrade920. All rights reserved.">\n'
           '<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>\n</head>\n<body>\n')

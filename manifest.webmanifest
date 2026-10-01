@@ -1,6 +1,6 @@
 {
-  "name": "안개 도감",
-  "short_name": "안개 도감",
+  "name": "DBD 도감",
+  "short_name": "DBD 도감",
   "description": "데드 바이 데이라이트 기술·애드온·캐릭터 한국어 검색 도감 (비공식 팬 사이트)",
   "lang": "ko",
   "start_url": "./",
