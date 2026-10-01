@@ -115,6 +115,9 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .hint{color:var(--muted);font-size:14px}
 .hint kbd{font-family:var(--f-mono);font-size:12px;background:var(--sunk);border-radius:4px;padding:1px 5px}
 
+.foot{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:18px 32px;border-top:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--muted);display:grid;gap:4px}
+.foot p{margin:0;max-width:80ch}
+.foot a{color:inherit;text-underline-offset:3px}
 @media (max-width:820px){
   .wrap{grid-template-columns:minmax(0,1fr)}
   .detail{position:fixed;inset:0;top:0;z-index:20;border-radius:0;border:0;max-height:none;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);transform:translateX(100%);transition:transform .22s ease}
@@ -146,6 +149,10 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   </section>
   <aside class="detail" id="detail" aria-live="polite"></aside>
 </main>
+<footer class="foot">
+  <p>비공식 팬 사이트이며 Behaviour Interactive와 관련이 없습니다. Dead by Daylight의 게임 텍스트와 이미지 저작권은 Behaviour Interactive에 있습니다.</p>
+  <p>데이터 출처: <a href="https://dbd.tricky.lol" target="_blank" rel="noopener">dbd.tricky.lol</a> · 아이콘: <a href="https://github.com/Icon-Pack-Provider/Dead-by-daylight-Default-icons" target="_blank" rel="noopener">Icon-Pack-Provider 기본 아이콘 모음</a> · 상세 설명은 나무위키 검색 링크로 연결됩니다.</p>
+</footer>
 
 <script id="data" type="application/json">__DATA__</script>
 <script>
