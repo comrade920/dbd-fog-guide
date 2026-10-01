@@ -44,6 +44,7 @@ button,select,input{font:inherit;color:inherit}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip[data-zero]{opacity:.45}
 .chip .n{font-family:var(--f-mono);font-size:11px;opacity:.65;margin-left:4px}
 
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
@@ -226,20 +227,20 @@ function charOf(q){
   if(!q||q.length<2)return null;
   return Object.values(chars).find(c=>{const k=norm(c.ko),e=norm(c.en);return q===k||q===e||q===e.replace(/^the/,'')})||null;
 }
-function results(){
+function results(cat=state.cat){
   const q=norm(state.q); const isCho=q&&/^[ㄱ-ㅎ]+$/.test(q);
   const qc=state.loose?null:charOf(q);
   state.charHit=qc;
   if(qc&&!state.who){
     const ord={k:0,s:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
     let pool=all.filter(e=>e.o===qc.id||(e.id===qc.id&&(e.c==='k'||e.c==='s')));
-    if(state.cat!=='all')pool=pool.filter(e=>state.cat==='char'?(e.c==='k'||e.c==='s'):e.c===state.cat);
+    if(cat!=='all')pool=pool.filter(e=>cat==='char'?(e.c==='k'||e.c==='s'):e.c===cat);
     return pool.sort((a,b)=>(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0))||a.ko.localeCompare(b.ko,'ko')).map(e=>[e,90]);
   }
   let pool=all;
   if(state.who){const c=chars[state.who];
     pool=all.filter(e=>e.o===state.who||(c&&c.perks.includes(e.id)&&(e.c==='sp'||e.c==='kp')));}
-  if(state.cat!=='all')pool=pool.filter(e=>state.cat==='char'?(e.c==='k'||e.c==='s'):e.c===state.cat);
+  if(cat!=='all')pool=pool.filter(e=>cat==='char'?(e.c==='k'||e.c==='s'):e.c===cat);
   if(!q){
     const ord={k:0,s:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
     return pool.slice().sort((a,b)=>state.who?(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0)):a.ko.localeCompare(b.ko,'ko')).map(e=>[e,0]);
@@ -254,11 +255,14 @@ function hi(text,q){
   return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+q.trim().length))+'</mark>'+esc(text.slice(i+q.trim().length));
 }
 function renderChips(){
-  const counts={all:all.length,char:0};all.forEach(e=>{if(e.c==='k'||e.c==='s')counts.char++;else counts[e.c]=(counts[e.c]||0)+1});
+  /* 현재 검색어·캐릭터 필터를 적용한 결과를 분류별로 센다 */
+  const r=results('all');
+  const counts={all:r.length,char:0,sp:0,kp:0,ka:0,sa:0,it:0,of:0};r.forEach(([e])=>{if(e.c==='k'||e.c==='s')counts.char++;else counts[e.c]++});
   const list=[['all','전체'],['sp','생존자 기술'],['kp','살인마 기술'],['ka','살인마 애드온'],['sa','아이템 애드온'],['it','아이템'],['of','공물'],['char','캐릭터']];
-  document.getElementById('chips').innerHTML=list.map(([k,l])=>`<button class="chip" data-cat="${k}" aria-pressed="${state.cat===k}">${l}<span class="n">${counts[k]}</span></button>`).join('');
+  document.getElementById('chips').innerHTML=list.map(([k,l])=>`<button class="chip" data-cat="${k}" aria-pressed="${state.cat===k}"${counts[k]?'':' data-zero="1"'}>${l}<span class="n">${counts[k]}</span></button>`).join('');
 }
 function renderList(){
+  renderChips();
   const r=results(); const list=document.getElementById('list');
   document.getElementById('count').textContent=`${r.length.toLocaleString()}개`;
   const isCho=/^[ㄱ-ㅎ]+$/.test(norm(state.q));
