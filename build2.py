@@ -154,6 +154,12 @@ if os.path.exists('dbd-fog-guide.html'):
     head=('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
           '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
           '<meta name="description" content="데드 바이 데이라이트 기술·애드온·아이템·공물·캐릭터 한국어 검색 도감">\n'
+          '<link rel="icon" type="image/png" sizes="32x32" href="appicon/favicon-32.png">\n'
+          '<link rel="apple-touch-icon" href="appicon/apple-touch-icon.png">\n'
+          '<link rel="manifest" href="manifest.webmanifest">\n'
+          '<meta name="theme-color" content="#131116">\n'
+          '<meta name="apple-mobile-web-app-title" content="안개 도감">\n'
+          '<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n'
           '<meta name="author" content="comrade920">\n<meta name="copyright" content="© 2026 comrade920. All rights reserved.">\n'
           '<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>\n</head>\n<body>\n')
     open('index.html','w').write(head+body+'\n</body>\n</html>\n'); print('index.html 생성')
