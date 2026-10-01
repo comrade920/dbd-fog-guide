@@ -45,6 +45,19 @@ button,select,input{font:inherit;color:inherit}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .chip[data-zero]{opacity:.45}
+.quick{display:grid;gap:10px;margin-bottom:14px}
+.quick h3{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;font-weight:600}
+.quick .minis{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.dtools{display:flex;gap:6px;margin-left:auto;align-self:flex-start;flex:none}
+.tool{border:1px solid var(--line);background:var(--surface);border-radius:8px;height:34px;min-width:34px;padding:0 10px;cursor:pointer;font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.tool[aria-pressed="true"]{color:var(--r1);border-color:var(--r1)}
+.tool .s{font-size:16px;line-height:1}
+.copied{font-size:12px;color:var(--muted);margin-top:6px}
+.copybox{width:100%;margin-top:6px;font-family:var(--f-mono);font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--sunk)}
+.kw{border:0;background:none;padding:0;font:inherit;font-weight:inherit;color:inherit;cursor:pointer;text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:3px}
+.kw:hover{color:var(--accent)}
+.g.st::before{border-radius:50%;inset:6px;border-style:dashed}
+.related h4{font-size:12.5px;margin:12px 0 4px;color:var(--fg);font-weight:600}
 .chip .n{font-family:var(--f-mono);font-size:11px;opacity:.65;margin-left:4px}
 
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
@@ -145,6 +158,7 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 
 <main class="wrap">
   <section>
+    <div class="quick" id="quick" hidden></div>
     <div class="meta"><span id="count"></span><span id="mode"></span></div>
     <div class="list" id="list" role="listbox" aria-label="검색 결과"></div>
   </section>
@@ -158,7 +172,7 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 <script id="data" type="application/json">__DATA__</script>
 <script>
 const D=JSON.parse(document.getElementById('data').textContent);
-const CAT={sp:'생존자 기술',kp:'살인마 기술',ka:'살인마 애드온',sa:'아이템 애드온',it:'아이템',of:'공물',k:'살인마',s:'생존자'};
+const CAT={st:'상태 효과',sp:'생존자 기술',kp:'살인마 기술',ka:'살인마 애드온',sa:'아이템 애드온',it:'아이템',of:'공물',k:'살인마',s:'생존자'};
 const RAR=[['Common','일반'],['Uncommon','고급'],['Rare','희귀'],['Very Rare','매우 희귀'],['Ultra Rare','극히 희귀'],['Event','이벤트']];
 const ITEM={flashlight:'손전등',key:'열쇠',map:'지도',medkit:'구급상자',toolbox:'공구상자',fogvial:'안개 약병',firecracker:'폭죽'};
 const ROLE={killer:'살인마용',survivor:'생존자용',shared:'공용'};
@@ -169,16 +183,44 @@ const strip=h=>(h||'').replace(/<[^>]+>/g,' ');
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const ALIAS={deadhard:'dh',borrowedtime:'bt',decisivestrike:'ds',sprintburst:'sb',barbecuechili:'bbq',hexnooneescapesdeath:'noed',popgoestheweasel:'pop',hexruin:'ruin',corruptintervention:'ci',selfcare:'sc',unbreakable:'ub',offtherecord:'otr',windowsofopportunity:'wglf wo',balancedlanding:'bl',hexdevourhope:'devour',scourgehookpainresonance:'pr',scourgehookgiftofpain:'gop',callofbrine:'cob',grimembrace:'ge',hexpentimento:'penti',anursescalling:'nc',spinechill:'sc',imallears:'iae',lethalpursuer:'lp',madeforthis:'mft',deadlock:'dl',noway:'nw',eruption:'erupt',hexundying:'undying',hexplaything:'plaything',nowheretohide:'nth'};
+/* 상태 효과 사전: 게임 한국어 표기 기준. 설명은 요약 */
+const STATUS=[
+ {id:'exhausted',ko:'탈진',en:'Exhausted',buff:0,who:'생존자',d:'탈진 상태에서는 죽기살기·전력 질주처럼 탈진을 일으키는 기술을 쓸 수 없다. 달리는 동안에는 탈진이 회복되지 않는다.'},
+ {id:'exposed',ko:'약점 노출',en:'Exposed',buff:0,who:'생존자',d:'살인마의 기본 공격 한 번에 바로 빈사 상태가 된다.'},
+ {id:'broken',ko:'치료 불능',en:'Broken',buff:0,who:'생존자',d:'부상 상태에서 치료로 건강 상태를 회복할 수 없다.'},
+ {id:'oblivious',ko:'인지 불가능',en:'Oblivious',buff:0,who:'생존자',d:'살인마의 공포 범위(심장 소리)를 들을 수 없다.'},
+ {id:'undetectable',ko:'감지 불가능',en:'Undetectable',buff:1,who:'살인마',d:'살인마의 공포 범위와 붉은 빛이 사라지고, 생존자가 살인마의 오라를 볼 수 없다.'},
+ {id:'blindness',ko:'실명',en:'Blindness',buff:0,who:'공통',d:'오라를 볼 수 없다.'},
+ {id:'endurance',ko:'인내',en:'Endurance',buff:1,who:'생존자',d:'빈사 상태가 될 공격을 한 번 버틴다. 대신 깊은 상흔 상태가 된다.',bold:1},
+ {id:'deepwound',ko:'깊은 상흔',en:'Deep Wound',buff:0,who:'생존자',d:'제한 시간 안에 상처를 수습하지 못하면 빈사 상태가 된다.'},
+ {id:'hemorrhage',ko:'출혈',en:'Haemorrhage',buff:0,who:'생존자',d:'피를 더 많이 흘리고, 치료를 멈추면 치료 진행도가 줄어든다.'},
+ {id:'mangled',ko:'근육 손상',en:'Mangled',buff:0,who:'생존자',d:'치료 속도가 느려진다.'},
+ {id:'haste',ko:'이동 속도 증가',en:'Haste',buff:1,who:'공통',d:'이동 속도가 빨라진다.',guess:1},
+ {id:'hindered',ko:'이동 속도 감소',en:'Hindered',buff:0,who:'공통',d:'이동 속도가 느려진다.',guess:1},
+ {id:'elusive',ko:'회피',en:'Elusive',buff:1,who:'생존자',d:'최근 추가된 효과로, 정확한 설명은 확인 중입니다. 아래 관련 기술 설명을 참고하세요.',bold:1,guess:1},
+ {id:'madness',ko:'광기',en:'Madness',buff:0,who:'생존자',d:'닥터의 능력으로 쌓인다. 단계가 오를수록 스킬 체크 방해, 환영, 비명 같은 불리한 효과가 생긴다.'},
+];
 const chars={};
 D.killers.forEach(c=>chars[c.id]={...c,c:'k'});
 D.survivors.forEach(c=>chars[c.id]={...c,c:'s'});
-const all=[...D.entries, ...Object.values(chars).map(c=>({c:c.c,id:c.id,ko:c.ko,en:c.en,d:c.d,o:c.id,ic:c.ic}))];
+const all=[...D.entries, ...Object.values(chars).map(c=>({c:c.c,id:c.id,ko:c.ko,en:c.en,d:c.d,o:c.id,ic:c.ic})), ...STATUS.map(t=>({c:'st',id:t.id,ko:t.ko,en:t.en,d:t.d,st:t}))];
 all.forEach((e,i)=>{e.i=i;e.key=e.c+':'+e.id;e.kn=norm(e.ko);e.ch=cho(e.kn);e.enn=norm(e.en);e.al=(ALIAS[e.enn]||'').split(' ').filter(Boolean);if(chars[e.id]&&chars[e.id].c==='k'){e.pn=norm(chars[e.id].power.ko);e.pen=norm(chars[e.id].power.en)}e.dn=norm(strip(e.d));
   const o=chars[e.o]; if(o){e.okn=norm(o.ko);e.oen=norm(o.en)}});
 const byKey=Object.fromEntries(all.map(e=>[e.key,e]));
+const sortKey=e=>e.sk||(e.sk=e.ko.replace(/^["“”'‘’]+/,''));
 const perkKey=id=>byKey['sp:'+id]||byKey['kp:'+id];
+/* 상태 효과가 등장하는 항목 (기술·애드온·아이템·능력) */
+const STATUS_RE=STATUS.slice().sort((a,b)=>b.ko.length-a.ko.length);
+function mentions(t,html){return t.bold?(html||'').includes('<b>'+t.ko+'</b>'):strip(html).includes(t.ko)}
+/* 관련 항목은 처음 열 때 계산 */
+const relOf=t=>t.rel||(t.rel=all.filter(e=>e.c!=='st'&&e.c!=='s'&&(mentions(t,e.d)||(e.c==='k'&&mentions(t,chars[e.id].power.d)))));
 
 let state={q:'',cat:'all',who:'',sel:null,limit:60};
+const store={get(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v??def}catch(e){return def}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let favs=store.get('fog-fav',[]).filter(k=>byKey[k]);
+let recent=store.get('fog-recent',[]).filter(k=>byKey[k]);
+function toggleFav(key){favs=favs.includes(key)?favs.filter(k=>k!==key):[key,...favs];store.set('fog-fav',favs)}
+function pushRecent(key){recent=[key,...recent.filter(k=>k!==key)].slice(0,12);store.set('fog-recent',recent)}
 try{const s=JSON.parse(localStorage.getItem('fog-state')||'{}');if(s.cat)state.cat=s.cat;}catch(e){}
 
 /* character select */
@@ -189,11 +231,12 @@ who.innerHTML='<option value="">캐릭터 전체</option>'+
 
 function color(e){
   if(e.r!=null)return `var(--r${e.r})`;
+  if(e.c==='st')return e.st.buff?'var(--r2)':'var(--kl)';
   if(e.c==='sp'||e.c==='s')return 'var(--sv)';
   return 'var(--kl)';
 }
 function glyph(e,big){
-  const shape=(e.c==='sp'||e.c==='kp')?'perk':(e.c==='k'||e.c==='s')?'char':'addon';
+  const shape=(e.c==='sp'||e.c==='kp')?'perk':(e.c==='k'||e.c==='s')?'char':e.c==='st'?'st':'addon';
   if(e.ic){
     const [sh,i]=e.ic,[cols,rows]=D.icons.cols[sh];
     const x=cols>1?(i%cols)/(cols-1)*100:0, y=rows>1?Math.floor(i/cols)/(rows-1)*100:0;
@@ -204,6 +247,7 @@ function glyph(e,big){
 function ownerLabel(e){
   if(e.c==='sa'||e.c==='it')return ITEM[e.it]||'아이템';
   if(e.c==='of')return ROLE[e.role]||'';
+  if(e.c==='st')return (e.st.buff?'이로운 효과':'해로운 효과')+' · '+e.st.who;
   if(e.c==='k'||e.c==='s')return chars[e.id].c==='k'?(chars[e.id].power.ko||''):'';
   const o=chars[e.o];return o?o.ko:'공용';
 }
@@ -232,20 +276,20 @@ function results(cat=state.cat){
   const qc=state.loose?null:charOf(q);
   state.charHit=qc;
   if(qc&&!state.who){
-    const ord={k:0,s:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
+    const ord={k:0,s:0,st:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
     let pool=all.filter(e=>e.o===qc.id||(e.id===qc.id&&(e.c==='k'||e.c==='s')));
     if(cat!=='all')pool=pool.filter(e=>cat==='char'?(e.c==='k'||e.c==='s'):e.c===cat);
-    return pool.sort((a,b)=>(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0))||a.ko.localeCompare(b.ko,'ko')).map(e=>[e,90]);
+    return pool.sort((a,b)=>(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0))||sortKey(a).localeCompare(sortKey(b),'ko')).map(e=>[e,90]);
   }
   let pool=all;
   if(state.who){const c=chars[state.who];
     pool=all.filter(e=>e.o===state.who||(c&&c.perks.includes(e.id)&&(e.c==='sp'||e.c==='kp')));}
   if(cat!=='all')pool=pool.filter(e=>cat==='char'?(e.c==='k'||e.c==='s'):e.c===cat);
   if(!q){
-    const ord={k:0,s:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
-    return pool.slice().sort((a,b)=>state.who?(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0)):a.ko.localeCompare(b.ko,'ko')).map(e=>[e,0]);
+    const ord={k:0,s:0,st:0,sp:1,kp:1,ka:2,sa:2,it:2,of:3};
+    return pool.slice().sort((a,b)=>state.who?(ord[a.c]-ord[b.c])||((a.r??0)-(b.r??0)):sortKey(a).localeCompare(sortKey(b),'ko')).map(e=>[e,0]);
   }
-  return pool.map(e=>[e,score(e,q,q,isCho)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||a[0].ko.localeCompare(b[0].ko,'ko'));
+  return pool.map(e=>[e,score(e,q,q,isCho)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||sortKey(a[0]).localeCompare(sortKey(b[0]),'ko'));
 }
 function hi(text,q){
   if(!q)return esc(text);
@@ -257,12 +301,19 @@ function hi(text,q){
 function renderChips(){
   /* 현재 검색어·캐릭터 필터를 적용한 결과를 분류별로 센다 */
   const r=results('all');
-  const counts={all:r.length,char:0,sp:0,kp:0,ka:0,sa:0,it:0,of:0};r.forEach(([e])=>{if(e.c==='k'||e.c==='s')counts.char++;else counts[e.c]++});
-  const list=[['all','전체'],['sp','생존자 기술'],['kp','살인마 기술'],['ka','살인마 애드온'],['sa','아이템 애드온'],['it','아이템'],['of','공물'],['char','캐릭터']];
+  const counts={all:r.length,char:0,st:0,sp:0,kp:0,ka:0,sa:0,it:0,of:0};r.forEach(([e])=>{if(e.c==='k'||e.c==='s')counts.char++;else counts[e.c]++});
+  const list=[['all','전체'],['sp','생존자 기술'],['kp','살인마 기술'],['ka','살인마 애드온'],['sa','아이템 애드온'],['it','아이템'],['of','공물'],['char','캐릭터'],['st','상태 효과']];
   document.getElementById('chips').innerHTML=list.map(([k,l])=>`<button class="chip" data-cat="${k}" aria-pressed="${state.cat===k}"${counts[k]?'':' data-zero="1"'}>${l}<span class="n">${counts[k]}</span></button>`).join('');
 }
+function renderQuick(){
+  const box=document.getElementById('quick');
+  const show=!state.q&&!state.who&&(favs.length||recent.length);
+  box.hidden=!show; if(!show)return;
+  box.innerHTML=(favs.length?`<div><h3>즐겨찾기</h3><div class="minis">${favs.map(k=>mini(byKey[k])).join('')}</div></div>`:'')+
+    (recent.length?`<div><h3>최근 본 항목</h3><div class="minis">${recent.slice(0,8).map(k=>mini(byKey[k])).join('')}</div></div>`:'');
+}
 function renderList(){
-  renderChips();
+  renderChips();renderQuick();
   const r=results(); const list=document.getElementById('list');
   document.getElementById('count').textContent=`${r.length.toLocaleString()}개`;
   const isCho=/^[ㄱ-ㅎ]+$/.test(norm(state.q));
@@ -295,8 +346,19 @@ function fmtNums(html){
   }).join('');
   return {html:out,tiered};
 }
+function linkStatus(html){
+  return html.split(/(<[^>]+>)/).map((part,i,arr)=>{
+    if(part.startsWith('<'))return part;
+    let out=part;
+    STATUS_RE.forEach(t=>{
+      if(t.bold&&!(arr[i-1]==='<b>'&&arr[i+1]==='</b>'&&part===t.ko))return;
+      out=out.split(t.ko).join('\u0000'+t.id+'\u0001');
+    });
+    return out.replace(/\u0000(\w+)\u0001/g,(m,id)=>{const t=STATUS.find(x=>x.id===id);return `<button class="kw" data-key="st:${id}">${t.ko}</button>`});
+  }).join('');
+}
 function descBlock(html){
-  const r=fmtNums(html);
+  const r=fmtNums(linkStatus(html||''));
   return `<div class="desc">${r.html}</div>`+(r.tiered?`<div class="legend"><span><b style="background:var(--t1)"></b>1단계</span><span><b style="background:var(--t2)"></b>2단계</span><span><b style="background:var(--t3)"></b>3단계</span></div>`:'');
 }
 function mini(e){return e?`<button class="mini" data-key="${e.key}">${glyph(e)}<span class="t">${esc(e.ko)}</span></button>`:''}
@@ -309,7 +371,10 @@ function renderDetail(){
     <div class="sec"><h3>자주 찾는 기술</h3><div class="minis">${['deadhard','borrowedtime','decisivestrike','sprintburst','adrenaline','barbecuechili','hexruin','popgoestheweasel','hexnooneescapesdeath','unbreakable','lethalpursuer','deadlock','madeforthis'].map(n=>mini(all.find(x=>(x.c==='sp'||x.c==='kp')&&x.enn===n))).join('')}</div></div>`;
     return;
   }
-  let h=`<button class="back" id="back">← 목록으로</button><div class="dhead">${glyph(e,true)}<div style="min-width:0"><h2>${esc(e.ko)}</h2><div class="en">${esc(e.en||'')}</div></div></div><div class="pills">`;
+  const fav=favs.includes(e.key);
+  const canCopy=window.self===window.top&&/^https?:$/.test(location.protocol);
+  let h=`<button class="back" id="back">← 목록으로</button><div class="dhead">${glyph(e,true)}<div style="min-width:0"><h2>${esc(e.ko)}</h2><div class="en">${esc(e.en||'')}</div></div>
+    <div class="dtools"><button class="tool" id="fav" aria-pressed="${fav}" title="즐겨찾기"><span class="s">${fav?'★':'☆'}</span></button>${canCopy?'<button class="tool" id="copy" title="이 항목 링크 복사">링크</button>':''}</div></div><div id="copymsg"></div><div class="pills">`;
   h+=`<span class="pill">${CAT[e.c]}</span>`;
   if(e.r!=null)h+=`<span class="pill r" style="--c:var(--r${e.r})">${RAR[e.r][1]} · ${RAR[e.r][0]}</span>`;
   if(e.c==='sa')h+=`<span class="pill">${ITEM[e.it]||''} 애드온</span>`;
@@ -319,6 +384,14 @@ function renderDetail(){
   if(o&&e.c!=='k'&&e.c!=='s')h+=`<button class="pill" data-who="${o.id}">${esc(o.ko)}의 ${e.c==='ka'?'애드온 전체':'기술'}</button>`;
   else if((e.c==='sp'||e.c==='kp'))h+=`<span class="pill">공용 기술</span>`;
   h+='</div>';
+  if(e.c==='st'){
+    const t=e.st;
+    h+=descBlock(esc(t.d));
+    if(t.guess)h+=`<div class="copied">한국어 표기는 추정입니다. 게임 표기와 다르면 알려주세요.</div>`;
+    const groups=[['sp','생존자 기술'],['kp','살인마 기술'],['k','살인마 능력'],['ka','살인마 애드온'],['sa','아이템 애드온'],['it','아이템'],['of','공물']];
+    h+=`<div class="sec related"><h3>‘${esc(t.ko)}’ 관련 항목 ${relOf(t).length}개</h3>`+groups.map(([c,l])=>{const xs=relOf(t).filter(x=>x.c===c);return xs.length?`<h4>${l} ${xs.length}</h4><div class="minis">${xs.map(mini).join('')}</div>`:''}).join('')+`</div>`;
+    box.innerHTML=h;return;
+  }
   if(e.c==='k'||e.c==='s'){
     const c=chars[e.id];
     if(c.c==='k'){h+=`<div class="sec"><h3>능력 · ${esc(c.power.ko)}</h3>${descBlock(c.power.d||c.d)}</div>`}
@@ -337,11 +410,25 @@ function renderDetail(){
   box.innerHTML=h;
 }
 function render(){renderChips();renderList();renderDetail()}
-function select(key){
-  state.sel=key;renderList();renderDetail();
+/* 항목별 링크: #sp.DeadHard 형태 (콜론 대신 점) */
+const toHash=k=>k.replace(':','.');
+const fromHash=h=>{const s=decodeURIComponent(h.replace(/^#/,''));const i=s.indexOf('.');return i>0?s.slice(0,i)+':'+s.slice(i+1):''};
+let pushed=0;
+function select(key,opts={}){
+  if(!byKey[key])return;
+  state.sel=key;pushRecent(key);renderList();renderDetail();
   const d=document.getElementById('detail');d.scrollTop=0;
-  if(matchMedia('(max-width:820px)').matches&&key)d.classList.add('open');
+  if(matchMedia('(max-width:820px)').matches)d.classList.add('open');
+  if(opts.push!==false&&location.hash!=='#'+toHash(key)){
+    try{history.pushState({k:key},'','#'+toHash(key));pushed++}catch(e){}
+  }
 }
+function closeSheet(){document.getElementById('detail').classList.remove('open')}
+window.addEventListener('popstate',()=>{
+  const k=fromHash(location.hash);
+  if(byKey[k]){select(k,{push:false})}else{closeSheet()}
+  if(pushed>0)pushed--;
+});
 const q=document.getElementById('q'),clr=document.getElementById('clr');
 q.addEventListener('input',()=>{state.q=q.value;state.loose=false;state.limit=60;clr.hidden=!q.value;renderList()});
 q.addEventListener('keydown',ev=>{if(ev.key==='Enter'){const f=document.querySelector('.row');if(f){select(f.dataset.key);q.blur()}}});
@@ -353,9 +440,14 @@ document.addEventListener('click',ev=>{
   const w=ev.target.closest('[data-who]');if(w){who.value=w.dataset.who;who.onchange();return}
   if(ev.target.id==='loose'){state.loose=true;state.limit=60;renderList();return}
   if(ev.target.id==='more'){state.limit+=100;renderList();return}
-  if(ev.target.id==='back'){document.getElementById('detail').classList.remove('open')}
+  if(ev.target.closest('#back')){if(pushed>0)history.back();else closeSheet();return}
+  if(ev.target.closest('#fav')){toggleFav(state.sel);renderDetail();renderQuick();return}
+  if(ev.target.closest('#copy')){const url=location.href.split('#')[0]+'#'+toHash(state.sel);const m=document.getElementById('copymsg');
+    const fallback=()=>{m.innerHTML=`<input class="copybox" id="copyurl" readonly value="${esc(url)}">`;const i=document.getElementById('copyurl');i.focus();i.select()};
+    try{navigator.clipboard.writeText(url).then(()=>{m.innerHTML='<div class="copied">링크를 복사했어요.</div>'},fallback)}catch(e){fallback()}return}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='/'&&document.activeElement!==q){ev.preventDefault();q.focus()}});
 document.getElementById('ver').textContent=D.version;
 render();
+{const k=fromHash(location.hash);if(byKey[k])select(k,{push:false})}
 </script>
