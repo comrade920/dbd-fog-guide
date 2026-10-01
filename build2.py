@@ -84,6 +84,43 @@ for key,o in ok_.items():
     if o.get('retired') or not o.get('name'): continue
     out['entries'].append(E({'c':'of','id':key,'ko':o['name'].strip(),'en':(oe.get(key,{}).get('name') or '').strip(),
         'd':clean(fill(o['description'],o.get('tunables'),key)),'r':RAR.get(o.get('rarity')),'role':o.get('role') or 'shared','ic':ic(o.get('image'))}))
+# ---- 이번 주 신전 (raw/shrine.json 이 있으면) ----
+sp_path=os.path.join(RAW,'shrine.json')
+if os.path.exists(sp_path):
+    try:
+        sh=json.load(open(sp_path))
+        if isinstance(sh,dict) and 'perks' not in sh and len(sh)==1: sh=next(iter(sh.values()))
+        perk_keys={k.lower():k for k in pk}
+        name_keys={(pe.get(k,{}).get('name') or '').lower():k for k in pk}
+        ids=[]
+        for p in sh.get('perks',[]):
+            pid=p.get('id') if isinstance(p,dict) else p
+            pid=str(pid or '')
+            k=perk_keys.get(pid.lower()) or name_keys.get(pid.lower())
+            if k: ids.append(k)
+            else: print('신전 기술 매칭 실패:',pid)
+        out['shrine']={'perks':ids,'start':sh.get('start'),'end':sh.get('end')}
+        print('신전',len(ids),'개')
+    except Exception as ex:
+        print('신전 데이터 읽기 실패:',ex)
+
+# ---- 패치 변경점: 직전 data.json과 비교 ----
+def keyed(data): return {e['c']+':'+e['id']:e for e in data.get('entries',[])}
+if os.path.exists('data.json'):
+    try: prev=json.load(open('data.json'))
+    except Exception: prev={}
+    if prev.get('version') and prev.get('version')!=out['version']:
+        P,N=keyed(prev),keyed(out); items=[]
+        for k,e in N.items():
+            if k not in P: items.append({'k':k,'t':'add'})
+            elif P[k].get('d')!=e.get('d') or P[k].get('ko')!=e.get('ko'):
+                items.append({'k':k,'t':'mod','old':P[k].get('d',''),'oldko':P[k].get('ko') if P[k].get('ko')!=e.get('ko') else None})
+        for k,e in P.items():
+            if k not in N: items.append({'k':k,'t':'del','ko':e.get('ko'),'c':e.get('c')})
+        out['changes']={'from':prev['version'],'to':out['version'],'items':items}
+        print('패치 변경점',prev['version'],'->',out['version'],len(items),'개')
+    elif prev.get('changes'):
+        out['changes']=prev['changes']
 json.dump(out,open('data.json','w'),ensure_ascii=False,separators=(',',':'))
 import collections
 print('version',out['version'],'killers',len(out['killers']),'survivors',len(out['survivors']))

@@ -17,4 +17,7 @@ for ep in perks addons characters items offerings versions; do
     sleep 1
   done
 done
+# 이번 주 신전 (언어 무관)
+code=$(curl -s -A "$UA" -o raw/shrine.json -w "%{http_code}" "https://dbd.tricky.lol/api/shrine")
+if [ "$code" = "200" ] && head -c 1 raw/shrine.json | grep -q '[{[]'; then echo "OK   raw/shrine.json"; ok=$((ok+1)); else echo "FAIL raw/shrine.json  (HTTP $code)"; fail=$((fail+1)); fi
 echo "완료: 성공 $ok / 실패 $fail"

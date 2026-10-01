@@ -45,7 +45,36 @@ button,select,input{font:inherit;color:inherit}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .chip[data-zero]{opacity:.45}
-.quick{display:grid;gap:10px;margin-bottom:14px}
+.quick{display:grid;gap:12px;margin-bottom:14px}
+.buildbtn{height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 14px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px;flex:none}
+.buildbtn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.buildbtn .bn{font-family:var(--f-mono);font-size:11px;opacity:.7}
+.tags .chip{font-size:12px;padding:3px 10px;border-style:dashed}
+.tags .chip[aria-pressed="true"]{border-style:solid}
+.tags .lbl{flex:none;font-size:11.5px;color:var(--muted);align-self:center;margin-right:2px}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px;color:var(--bg)}
+.badge.add{background:var(--r2)}.badge.mod{background:var(--r1)}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.qhead small{font-size:12px;color:var(--muted)}
+.patchbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px}
+.patchbar b{font-family:var(--f-mono);font-weight:500}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.slot{display:flex;align-items:center;gap:8px;border:1px dashed var(--line);border-radius:10px;padding:6px 8px;min-height:48px;min-width:0}
+.slot.filled{border-style:solid;background:var(--sunk)}
+.slot .mini{flex:1;padding:2px}
+.slot .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;flex:none}
+.slot .ph{color:var(--muted);font-size:12.5px;padding-left:4px}
+.tagsum{display:flex;flex-wrap:wrap;gap:6px}
+.tagsum span{font-size:12px;background:var(--sunk);border-radius:6px;padding:2px 8px}
+.tagsum b{font-family:var(--f-mono);margin-left:4px}
+.olddesc{margin-top:12px;font-size:13.5px;color:var(--muted)}
+.olddesc summary{cursor:pointer;color:var(--fg);font-size:12.5px}
+.olddesc .desc{opacity:.85}
+.inote{font-size:12.5px;color:var(--muted);margin-top:8px}
 .quick h3{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px;font-weight:600}
 .quick .minis{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .dtools{display:flex;gap:6px;margin-left:auto;align-self:flex-start;flex:none}
@@ -94,7 +123,7 @@ mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;b
 .g.char.has-ic .ic{inset:3px;border-radius:50%}
 .g.big.addon.has-ic .ic{inset:6px}.g.big.perk.has-ic .ic{inset:4px}
 
-.detail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 150px);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;max-height:calc(100vh - 170px);overflow:auto;min-width:0}
+.detail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 196px);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;max-height:calc(100vh - 212px);overflow:auto;min-width:0}
 .dhead{display:flex;gap:16px;align-items:center}
 .dhead h2{font-family:var(--f-display);font-size:26px;font-weight:800;margin:0;line-height:1.2;text-wrap:balance}
 .dhead .en{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
@@ -133,6 +162,10 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .foot p{margin:0;max-width:80ch}
 .foot a{color:inherit;text-underline-offset:3px}
 @media (max-width:820px){
+  .buildbtn{padding:0 10px;height:40px}
+  .searchrow{flex-wrap:wrap}
+  .sbox{flex:1 1 100%}
+  .charsel{flex:1;max-width:none;height:40px}
   .wrap{grid-template-columns:minmax(0,1fr)}
   .detail{position:fixed;inset:0;top:0;z-index:20;border-radius:0;border:0;max-height:none;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 30px);transform:translateX(100%);transition:transform .22s ease}
   .detail.open{transform:none}
@@ -151,8 +184,10 @@ button.pill{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
         <button class="clear" id="clr" aria-label="검색어 지우기" hidden>×</button>
       </div>
       <select id="who" class="charsel" aria-label="캐릭터별 보기"></select>
+      <button class="buildbtn" id="buildBtn" aria-pressed="false" title="빌드 짜기">빌드<span class="bn" id="buildN"></span></button>
     </div>
     <div class="chips" id="chips" role="toolbar" aria-label="분류"></div>
+    <div class="chips tags" id="tags" role="toolbar" aria-label="효과 태그" hidden></div>
   </div>
 </header>
 
@@ -200,25 +235,65 @@ const STATUS=[
  {id:'elusive',ko:'회피',en:'Elusive',buff:1,who:'생존자',d:'최근 추가된 효과로, 정확한 설명은 확인 중입니다. 아래 관련 기술 설명을 참고하세요.',bold:1,guess:1},
  {id:'madness',ko:'광기',en:'Madness',buff:0,who:'생존자',d:'닥터의 능력으로 쌓인다. 단계가 오를수록 스킬 체크 방해, 환영, 비명 같은 불리한 효과가 생긴다.'},
 ];
+/* 설명 기반 자동 태그 (기술만) */
+const TAGS=[['gen','발전기',/발전기/],['heal','치료',/치료|치유|회복 속도/],['aura','오라',/오라/],['chase','추격',/추격|판자|창틀|뛰어넘|질주/],
+ ['stealth','은신',/감지 불가능|은신|발자국|핏자국|신음|소음|소리 신호/],['hook','갈고리',/갈고리/],['totem','토템',/토템/],
+ ['exit','출구·해치',/출구|해치/],['skill','스킬 체크',/스킬 체크/],['chest','상자·아이템',/상자|아이템/],['speed','이동 속도',/이동 속도/]];
+const TAGNAME=Object.fromEntries(TAGS.map(t=>[t[0],t[1]]));
 const chars={};
 D.killers.forEach(c=>chars[c.id]={...c,c:'k'});
 D.survivors.forEach(c=>chars[c.id]={...c,c:'s'});
 const all=[...D.entries, ...Object.values(chars).map(c=>({c:c.c,id:c.id,ko:c.ko,en:c.en,d:c.d,o:c.id,ic:c.ic})), ...STATUS.map(t=>({c:'st',id:t.id,ko:t.ko,en:t.en,d:t.d,st:t}))];
 all.forEach((e,i)=>{e.i=i;e.key=e.c+':'+e.id;e.kn=norm(e.ko);e.ch=cho(e.kn);e.enn=norm(e.en);e.al=(ALIAS[e.enn]||'').split(' ').filter(Boolean);if(chars[e.id]&&chars[e.id].c==='k'){e.pn=norm(chars[e.id].power.ko);e.pen=norm(chars[e.id].power.en)}e.dn=norm(strip(e.d));
-  const o=chars[e.o]; if(o){e.okn=norm(o.ko);e.oen=norm(o.en)}});
+  const o=chars[e.o]; if(o){e.okn=norm(o.ko);e.oen=norm(o.en)}
+  if(e.c==='sp'||e.c==='kp'){const t=strip(e.d);e.tags=TAGS.filter(x=>x[2].test(t)).map(x=>x[0])}});
 const byKey=Object.fromEntries(all.map(e=>[e.key,e]));
 const sortKey=e=>e.sk||(e.sk=e.ko.replace(/^["“”'‘’]+/,''));
 const perkKey=id=>byKey['sp:'+id]||byKey['kp:'+id];
+const CHG=D.changes?new Set(D.changes.items.filter(x=>x.t!=='del').map(x=>x.k)):null;
+const CHGBY=D.changes?Object.fromEntries(D.changes.items.map(x=>[x.k,x])):{};
+const fmtDate=ts=>{const d=new Date(ts*1000);return `${d.getMonth()+1}월 ${d.getDate()}일`};
 /* 상태 효과가 등장하는 항목 (기술·애드온·아이템·능력) */
 const STATUS_RE=STATUS.slice().sort((a,b)=>b.ko.length-a.ko.length);
 function mentions(t,html){return t.bold?(html||'').includes('<b>'+t.ko+'</b>'):strip(html).includes(t.ko)}
 /* 관련 항목은 처음 열 때 계산 */
 const relOf=t=>t.rel||(t.rel=all.filter(e=>e.c!=='st'&&e.c!=='s'&&(mentions(t,e.d)||(e.c==='k'&&mentions(t,chars[e.id].power.d)))));
 
-let state={q:'',cat:'all',who:'',sel:null,limit:60};
+let state={q:'',cat:'all',who:'',sel:null,limit:60,tag:'',panel:null,changed:false};
 const store={get(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v??def}catch(e){return def}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let favs=store.get('fog-fav',[]).filter(k=>byKey[k]);
 let recent=store.get('fog-recent',[]).filter(k=>byKey[k]);
+let build=store.get('fog-build',{role:'',killer:'',perks:[],addons:[]});
+['perks','addons'].forEach(k=>build[k]=(build[k]||[]).filter(x=>byKey[x]));
+function saveBuild(){store.set('fog-build',build);const n=build.perks.length+build.addons.length+(build.killer?1:0);document.getElementById('buildN').textContent=n?n:''}
+function buildHash(){return 'b~'+[build.killer&&('k.'+build.killer),...build.perks,...build.addons].filter(Boolean).map(toHash).join('~')}
+function loadBuildHash(h){
+  const ks=h.split('~').slice(1).map(fromHash).filter(k=>byKey[k]);
+  const b={role:'',killer:'',perks:[],addons:[]};
+  ks.forEach(k=>{const e=byKey[k];
+    if(e.c==='k'){b.killer=e.id;b.role='k'}
+    else if(e.c==='sp'||e.c==='kp'){if(b.perks.length<4)b.perks.push(k);b.role=e.c==='sp'?'s':'k'}
+    else if(e.c==='ka'){if(b.addons.length<2)b.addons.push(k);b.role='k';b.killer=b.killer||e.o}});
+  build=b;saveBuild();
+}
+/* 빌드에 추가: 결과를 문장으로 돌려준다 */
+function addToBuild(key){
+  const e=byKey[key];const role=e.c==='sp'?'s':'k';
+  const empty=!build.perks.length&&!build.addons.length&&!build.killer;
+  if(!empty&&build.role&&build.role!==role)return `지금 빌드는 ${build.role==='s'?'생존자':'살인마'} 빌드예요. 비운 뒤에 추가하세요.`;
+  build.role=role;
+  if(e.c==='k'){if(build.killer!==e.id){build.killer=e.id;build.addons=[]}saveBuild();return `${e.ko}를 빌드의 살인마로 정했어요.`}
+  if(e.c==='ka'){
+    if(build.killer&&build.killer!==e.o){build.killer=e.o;build.addons=[]}
+    build.killer=e.o;
+    if(build.addons.includes(key))return '이미 빌드에 있어요.';
+    if(build.addons.length>=2)return '애드온은 2개까지예요. 하나를 빼고 추가하세요.';
+    build.addons.push(key);saveBuild();return `애드온 ${build.addons.length}/2`;
+  }
+  if(build.perks.includes(key))return '이미 빌드에 있어요.';
+  if(build.perks.length>=4)return '기술은 4개까지예요. 하나를 빼고 추가하세요.';
+  build.perks.push(key);saveBuild();return `기술 ${build.perks.length}/4`;
+}
 function toggleFav(key){favs=favs.includes(key)?favs.filter(k=>k!==key):[key,...favs];store.set('fog-fav',favs)}
 function pushRecent(key){recent=[key,...recent.filter(k=>k!==key)].slice(0,12);store.set('fog-recent',recent)}
 try{const s=JSON.parse(localStorage.getItem('fog-state')||'{}');if(s.cat)state.cat=s.cat;}catch(e){}
@@ -272,6 +347,12 @@ function charOf(q){
   return Object.values(chars).find(c=>{const k=norm(c.ko),e=norm(c.en);return q===k||q===e||q===e.replace(/^the/,'')})||null;
 }
 function results(cat=state.cat){
+  let r=baseResults(cat);
+  if(state.tag)r=r.filter(([e])=>e.tags&&e.tags.includes(state.tag));
+  if(state.changed&&CHG)r=r.filter(([e])=>CHG.has(e.key));
+  return r;
+}
+function baseResults(cat){
   const q=norm(state.q); const isCho=q&&/^[ㄱ-ㅎ]+$/.test(q);
   const qc=state.loose?null:charOf(q);
   state.charHit=qc;
@@ -307,13 +388,27 @@ function renderChips(){
 }
 function renderQuick(){
   const box=document.getElementById('quick');
-  const show=!state.q&&!state.who&&(favs.length||recent.length);
+  const sh=D.shrine&&D.shrine.perks&&D.shrine.perks.length?D.shrine:null;
+  const show=!state.q&&!state.who&&!state.tag&&(favs.length||recent.length||sh||D.changes);
   box.hidden=!show; if(!show)return;
-  box.innerHTML=(favs.length?`<div><h3>즐겨찾기</h3><div class="minis">${favs.map(k=>mini(byKey[k])).join('')}</div></div>`:'')+
+  let h='';
+  if(D.changes)h+=`<div class="patchbar">패치 변경점 <b>v${esc(D.changes.from)} → v${esc(D.changes.to)}</b> · ${D.changes.items.length}개 <button class="linkbtn" id="showChanges">${state.changed?'변경 항목 필터 끄기':'변경된 항목만 보기'}</button> <button class="linkbtn" id="openChanges">자세히</button></div>`;
+  if(sh){const now=Date.now()/1000,live=!sh.end||now<sh.end;
+    h+=`<div><div class="qhead"><h3>${live?'이번 주 신전':'지난 신전'}</h3><small>${sh.end?(live?fmtDate(sh.end)+'까지':'데이터 갱신 필요'):''}</small></div><div class="minis">${sh.perks.map(id=>mini(perkKey(id))).join('')}</div></div>`;}
+  box.innerHTML=h+(favs.length?`<div><h3>즐겨찾기</h3><div class="minis">${favs.map(k=>mini(byKey[k])).join('')}</div></div>`:'')+
     (recent.length?`<div><h3>최근 본 항목</h3><div class="minis">${recent.slice(0,8).map(k=>mini(byKey[k])).join('')}</div></div>`:'');
 }
+function renderTags(){
+  const box=document.getElementById('tags');
+  const show=['all','sp','kp'].includes(state.cat);
+  box.hidden=!show; if(!show)return;
+  const save=state.tag; state.tag='';
+  const r=results(); state.tag=save;
+  const n={}; r.forEach(([e])=>(e.tags||[]).forEach(t=>n[t]=(n[t]||0)+1));
+  box.innerHTML='<span class="lbl">기술 효과</span>'+TAGS.map(([k,l])=>`<button class="chip" data-tag="${k}" aria-pressed="${state.tag===k}"${n[k]?'':' data-zero="1"'}>${l}<span class="n">${n[k]||0}</span></button>`).join('');
+}
 function renderList(){
-  renderChips();renderQuick();
+  renderChips();renderTags();renderQuick();
   const r=results(); const list=document.getElementById('list');
   document.getElementById('count').textContent=`${r.length.toLocaleString()}개`;
   const isCho=/^[ㄱ-ㅎ]+$/.test(norm(state.q));
@@ -324,7 +419,8 @@ function renderList(){
   const shown=r.slice(0,state.limit);
   list.innerHTML=shown.map(([e,s])=>{
     const tag=e.r!=null?`<b>${RAR[e.r][1]}</b>${esc(ownerLabel(e))}`:`<b>${CAT[e.c]}</b>${esc(ownerLabel(e))}`;
-    return `<button class="row" role="option" data-key="${e.key}" aria-selected="${state.sel===e.key}">${glyph(e)}<span style="min-width:0"><span class="nm">${hi(e.ko,state.q)}</span><span class="en">${hi(e.en||'',state.q)}${s===10?' · 설명에서 찾음':''}</span></span><span class="tag">${tag}</span></button>`}).join('')+
+    const cg=CHGBY[e.key];const badge=cg?(cg.t==='add'?'<span class="badge add">신규</span>':'<span class="badge mod">변경</span>'):'';
+    return `<button class="row" role="option" data-key="${e.key}" aria-selected="${state.sel===e.key}">${glyph(e)}<span style="min-width:0"><span class="nm">${hi(e.ko,state.q)}${badge}</span><span class="en">${hi(e.en||'',state.q)}${s===10?' · 설명에서 찾음':''}</span></span><span class="tag">${tag}</span></button>`}).join('')+
     (r.length>state.limit?`<button class="more" id="more">${(r.length-state.limit).toLocaleString()}개 더 보기</button>`:'');
 }
 /* 설명 속 숫자 강조: 단계별 수치(10/12.5/15)는 기술 등급 색, 고정 수치는 강조색 */
@@ -363,10 +459,39 @@ function descBlock(html){
 }
 function mini(e){return e?`<button class="mini" data-key="${e.key}">${glyph(e)}<span class="t">${esc(e.ko)}</span></button>`:''}
 function namu(e){return 'https://namu.wiki/Search?q='+encodeURIComponent(e.ko)}
+function slot(key,ph){return key?`<div class="slot filled">${mini(byKey[key])}<button class="x" data-unbuild="${key}" aria-label="빼기">×</button></div>`:`<div class="slot"><span class="ph">${ph}</span></div>`}
+function renderBuild(box){
+  const canCopy=window.self===window.top&&/^https?:$/.test(location.protocol);
+  const role=build.role;
+  let h=`<button class="back" id="back">← 목록으로</button><div class="dhead"><div style="min-width:0"><h2>내 빌드</h2><div class="en">${role==='k'?'살인마':role==='s'?'생존자':'역할 미정'} · 기술 ${build.perks.length}/4${role==='k'?` · 애드온 ${build.addons.length}/2`:''}</div></div></div>`;
+  h+=`<div class="sec"><h3>기술</h3><div class="slots">${[0,1,2,3].map(i=>slot(build.perks[i],'빈 칸')).join('')}</div></div>`;
+  if(role==='k'){
+    h+=`<div class="sec"><h3>살인마 · 애드온</h3><div class="slots">${build.killer?`<div class="slot filled">${mini(byKey['k:'+build.killer])}<button class="x" data-unbuild="k:${build.killer}" aria-label="빼기">×</button></div>`:slot('','살인마 미정')}${[0,1].map(i=>slot(build.addons[i],'애드온 빈 칸')).join('')}</div></div>`;
+  }
+  const n={};build.perks.forEach(k=>(byKey[k].tags||[]).forEach(t=>n[t]=(n[t]||0)+1));
+  const ts=Object.entries(n).sort((a,b)=>b[1]-a[1]);
+  if(ts.length)h+=`<div class="sec"><h3>효과 구성</h3><div class="tagsum">${ts.map(([t,c])=>`<span>${TAGNAME[t]}<b>${c}</b></span>`).join('')}</div><div class="inote">설명에 나오는 단어로 자동 분류한 값이에요.</div></div>`;
+  if(!build.perks.length&&!build.killer)h+=`<p class="hint" style="margin-top:16px">기술이나 애드온을 열고 <b>빌드에 추가</b>를 누르세요. 살인마 애드온을 넣으면 그 살인마가 자동으로 정해져요.</p>`;
+  h+=`<div class="btnrow">${canCopy?'<button class="btn primary" id="copyBuild">빌드 링크 복사</button>':''}<button class="btn" id="clearBuild">비우기</button></div><div id="copymsg"></div>`;
+  box.innerHTML=h;
+}
+function renderChanges(box){
+  const c=D.changes;const g={add:[],mod:[],del:[]};c.items.forEach(x=>g[x.t].push(x));
+  let h=`<button class="back" id="back">← 목록으로</button><div class="dhead"><div style="min-width:0"><h2>패치 변경점</h2><div class="en">v${esc(c.from)} → v${esc(c.to)} · ${c.items.length}개</div></div></div>`;
+  h+=`<p class="inote">설명 문구가 바뀐 항목을 모두 보여줘요. 오탈자 수정처럼 수치와 무관한 변경도 포함돼요. 항목을 열면 이전 설명과 비교할 수 있어요.</p>`;
+  if(g.mod.length)h+=`<div class="sec"><h3>바뀐 항목 ${g.mod.length}</h3><div class="minis">${g.mod.map(x=>mini(byKey[x.k])).join('')}</div></div>`;
+  if(g.add.length)h+=`<div class="sec"><h3>새 항목 ${g.add.length}</h3><div class="minis">${g.add.map(x=>mini(byKey[x.k])).join('')}</div></div>`;
+  if(g.del.length)h+=`<div class="sec"><h3>빠진 항목 ${g.del.length}</h3><div class="tagsum">${g.del.map(x=>`<span>${esc(x.ko||x.k)}</span>`).join('')}</div></div>`;
+  box.innerHTML=h;
+}
 function renderDetail(){
-  const box=document.getElementById('detail'); const e=byKey[state.sel];
+  const box=document.getElementById('detail');
+  document.getElementById('buildBtn').setAttribute('aria-pressed',state.panel==='build');
+  if(state.panel==='build')return renderBuild(box);
+  if(state.panel==='changes'&&D.changes)return renderChanges(box);
+  const e=byKey[state.sel];
   if(!e){
-    box.innerHTML=`<div class="note">게임 데이터 v${esc(D.version)} 기준 · 살인마 ${D.killers.length}명, 생존자 ${D.survivors.length}명. 상태 효과 이름은 게임 한국어 표기를 따르며, ‘회피’처럼 일부 신규 용어는 추정 번역입니다.</div>
+    box.innerHTML=`<div class="note">게임 데이터 v${esc(D.version)} 기준 · 살인마 ${D.killers.length}명, 생존자 ${D.survivors.length}명. 상태 효과 이름은 게임 한국어 표기를 따르며, ‘회피’처럼 일부 신규 용어는 추정 번역입니다.${D.changes?'':' 패치 변경점은 다음 데이터 갱신부터 표시됩니다.'}</div>
     <p class="hint">게임에서 본 이름을 그대로 쳐 보세요. 초성 <kbd>ㅈㄱㅅㄱ</kbd>, 줄임말 <kbd>noed</kbd>, 영문 <kbd>dead hard</kbd>, 캐릭터 이름 <kbd>너스</kbd> 모두 됩니다.</p>
     <div class="sec"><h3>자주 찾는 기술</h3><div class="minis">${['deadhard','borrowedtime','decisivestrike','sprintburst','adrenaline','barbecuechili','hexruin','popgoestheweasel','hexnooneescapesdeath','unbreakable','lethalpursuer','deadlock','madeforthis'].map(n=>mini(all.find(x=>(x.c==='sp'||x.c==='kp')&&x.enn===n))).join('')}</div></div>`;
     return;
@@ -383,7 +508,10 @@ function renderDetail(){
   const o=chars[e.o];
   if(o&&e.c!=='k'&&e.c!=='s')h+=`<button class="pill" data-who="${o.id}">${esc(o.ko)}의 ${e.c==='ka'?'애드온 전체':'기술'}</button>`;
   else if((e.c==='sp'||e.c==='kp'))h+=`<span class="pill">공용 기술</span>`;
+  if(CHGBY[e.key])h+=CHGBY[e.key].t==='add'?`<span class="pill r" style="--c:var(--r2)">v${esc(D.changes.to)} 신규</span>`:`<span class="pill r" style="--c:var(--r1)">v${esc(D.changes.to)} 변경</span>`;
+  (e.tags||[]).forEach(t=>h+=`<button class="pill" data-tag="${t}" data-tagcat="${e.c}">#${TAGNAME[t]}</button>`);
   h+='</div>';
+  if(['sp','kp','ka','k'].includes(e.c))h+=`<div class="btnrow" style="margin-top:10px"><button class="btn" id="addBuild">빌드에 추가</button><span id="buildmsg" class="inote" style="margin-top:6px"></span></div>`;
   if(e.c==='st'){
     const t=e.st;
     h+=descBlock(esc(t.d));
@@ -402,6 +530,8 @@ function renderDetail(){
     if(c.story)h+=`<div class="sec"><h3>배경 이야기</h3><div class="desc">${c.story}</div></div>`;
   } else {
     h+=descBlock(e.d);
+    const cg=CHGBY[e.key];
+    if(cg&&cg.t==='mod')h+=`<details class="olddesc"><summary>v${esc(D.changes.from)} 설명 보기${cg.oldko?` (이전 이름: ${esc(cg.oldko)})`:''}</summary>${descBlock(cg.old)}</details>`;
     if(e.f)h+=`<div class="flavor">${e.f}</div>`;
     if(o&&(e.c==='sp'||e.c==='kp')){const others=o.perks.filter(id=>id!==e.id).map(perkKey);
       h+=`<div class="sec"><h3>${esc(o.ko)}의 다른 고유 기술</h3><div class="minis">${others.map(mini).join('')}${mini(byKey[o.c+':'+o.id])}</div></div>`}
@@ -416,7 +546,7 @@ const fromHash=h=>{const s=decodeURIComponent(h.replace(/^#/,''));const i=s.inde
 let pushed=0;
 function select(key,opts={}){
   if(!byKey[key])return;
-  state.sel=key;pushRecent(key);renderList();renderDetail();
+  state.sel=key;state.panel=null;pushRecent(key);renderList();renderDetail();
   const d=document.getElementById('detail');d.scrollTop=0;
   if(matchMedia('(max-width:820px)').matches)d.classList.add('open');
   if(opts.push!==false&&location.hash!=='#'+toHash(key)){
@@ -441,6 +571,21 @@ document.addEventListener('click',ev=>{
   if(ev.target.id==='loose'){state.loose=true;state.limit=60;renderList();return}
   if(ev.target.id==='more'){state.limit+=100;renderList();return}
   if(ev.target.closest('#back')){if(pushed>0)history.back();else closeSheet();return}
+  const tg=ev.target.closest('[data-tag]');if(tg){const t=tg.dataset.tag;
+    if(tg.dataset.tagcat){state.cat=tg.dataset.tagcat;state.tag=t;closeSheet()}else state.tag=state.tag===t?'':t;
+    state.limit=60;renderList();return}
+  if(ev.target.closest('#buildBtn')){state.panel=state.panel==='build'?null:'build';renderDetail();
+    const d=document.getElementById('detail');d.scrollTop=0;if(state.panel&&matchMedia('(max-width:820px)').matches)d.classList.add('open');return}
+  if(ev.target.closest('#addBuild')){const m=addToBuild(state.sel);document.getElementById('buildmsg').textContent=m;return}
+  const ub=ev.target.closest('[data-unbuild]');if(ub){const k=ub.dataset.unbuild;
+    if(k.startsWith('k:')){build.killer='';build.addons=[]}else{build.perks=build.perks.filter(x=>x!==k);build.addons=build.addons.filter(x=>x!==k)}
+    if(!build.perks.length&&!build.addons.length&&!build.killer)build.role='';saveBuild();renderDetail();return}
+  if(ev.target.closest('#clearBuild')){build={role:'',killer:'',perks:[],addons:[]};saveBuild();renderDetail();return}
+  if(ev.target.closest('#copyBuild')){const url=location.href.split('#')[0]+'#'+buildHash();const m=document.getElementById('copymsg');
+    const fallback=()=>{m.innerHTML=`<input class="copybox" id="copyurl" readonly value="${esc(url)}">`;const i=document.getElementById('copyurl');i.focus();i.select()};
+    try{navigator.clipboard.writeText(url).then(()=>{m.innerHTML='<div class="copied">빌드 링크를 복사했어요.</div>'},fallback)}catch(e){fallback()}return}
+  if(ev.target.closest('#showChanges')){state.changed=!state.changed;state.limit=60;renderList();return}
+  if(ev.target.closest('#openChanges')){state.panel='changes';renderDetail();if(matchMedia('(max-width:820px)').matches)document.getElementById('detail').classList.add('open');return}
   if(ev.target.closest('#fav')){toggleFav(state.sel);renderDetail();renderQuick();return}
   if(ev.target.closest('#copy')){const url=location.href.split('#')[0]+'#'+toHash(state.sel);const m=document.getElementById('copymsg');
     const fallback=()=>{m.innerHTML=`<input class="copybox" id="copyurl" readonly value="${esc(url)}">`;const i=document.getElementById('copyurl');i.focus();i.select()};
@@ -449,5 +594,8 @@ document.addEventListener('click',ev=>{
 document.addEventListener('keydown',ev=>{if(ev.key==='/'&&document.activeElement!==q){ev.preventDefault();q.focus()}});
 document.getElementById('ver').textContent=D.version;
 render();
-{const k=fromHash(location.hash);if(byKey[k])select(k,{push:false})}
+saveBuild();
+{const h=decodeURIComponent(location.hash.slice(1));
+ if(h.startsWith('b~')){loadBuildHash(h);state.panel='build';renderDetail();if(matchMedia('(max-width:820px)').matches)document.getElementById('detail').classList.add('open')}
+ else{const k=fromHash(location.hash);if(byKey[k])select(k,{push:false})}}
 </script>
