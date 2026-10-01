@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.dbdfog.update</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>/Users/dong/Dev/dbd-wiki/auto_update.sh</string></array>
+  <!-- 매일 오전 9시 30분 (맥이 잠자기였다면 깨어날 때 실행) -->
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
+</dict>
+</plist>
