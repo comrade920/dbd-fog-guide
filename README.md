@@ -41,6 +41,8 @@ tail -5 logs/auto_update.log   # '올림 완료' 또는 '변경 없음'이면 �
 - 게임 데이터: [dbd.tricky.lol](https://dbd.tricky.lol)
 - 아이콘: [Icon-Pack-Provider/Dead-by-daylight-Default-icons](https://github.com/Icon-Pack-Provider/Dead-by-daylight-Default-icons)
 
+- 앱 아이콘: 배경 사진 "Night trees forest"(Jon Sullivan, 퍼블릭 도메인), 글꼴 Cinzel(SIL OFL 1.1). 자세한 내용은 `appicon_src/CREDITS.md`
+
 ## 저작권
 
 - 추천 세팅 내용의 저작권은 원작자(라스쿠 님)에게 있습니다.
