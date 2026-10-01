@@ -121,6 +121,22 @@ if os.path.exists('data.json'):
         print('패치 변경점',prev['version'],'->',out['version'],len(items),'개')
     elif prev.get('changes'):
         out['changes']=prev['changes']
+# ---- 추천 세팅 (settings.json, 따로 관리) ----
+if os.path.exists('settings.json'):
+    ST=json.load(open('settings.json'))
+    have={e['c']+':'+e['id'] for e in out['entries']}
+    kids={k['id'] for k in out['killers']}
+    bad=[]
+    for kid,kv in ST['killers'].items():
+        if kid not in kids: bad.append(('살인마',kid))
+        for s in kv['sets']:
+            for sl in s['perks']:
+                bad+= [(kid+' '+s['name'],x) for x in sl['alts'] if x not in have]
+            for combo in s['addons']:
+                for part in combo: bad+= [(kid+' '+s['name'],x) for x in part if x not in have]
+    if bad: print('추천 세팅: 게임 데이터에 없는 항목',len(bad),'개 ->',bad[:8])
+    else: print('추천 세팅: 살인마',len(ST['killers']),'명 모두 확인')
+    out['settings']=ST
 json.dump(out,open('data.json','w'),ensure_ascii=False,separators=(',',':'))
 import collections
 print('version',out['version'],'killers',len(out['killers']),'survivors',len(out['survivors']))

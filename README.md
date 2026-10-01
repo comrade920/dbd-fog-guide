@@ -13,6 +13,7 @@
 - 효과 태그 필터: 발전기, 치료, 오라, 추격, 은신 등
 - 빌드 짜기와 링크 공유, 즐겨찾기, 최근 본 항목
 - 이번 주 신전, 패치 변경점
+- 추천 세팅 탭: 살인마 44명의 추천 기술·애드온 조합 (원문: 라스쿠 님, 출처 표기)
 
 ## 데이터 갱신
 
@@ -35,10 +36,13 @@ tail -5 logs/auto_update.log   # '올림 완료' 또는 '변경 없음'이면 �
 
 ## 출처
 
+- 추천 세팅: 라스쿠 님 [자주쓰는 살인마 세팅 업데이트(v2026_2차)](https://gall.dcinside.com/mgallery/board/view/?id=dbd&no=2606672) (디시인사이드 데드바이데이라이트 마이너 갤러리). 원문 이미지를 텍스트로 옮기고 이름을 게임 표기로 맞춤. 원문이 바뀌면 `settings_src/raw.txt`를 고친 뒤 `python3 settings_src/match.py` 결과를 `settings.json`에 반영
+
 - 게임 데이터: [dbd.tricky.lol](https://dbd.tricky.lol)
 - 아이콘: [Icon-Pack-Provider/Dead-by-daylight-Default-icons](https://github.com/Icon-Pack-Provider/Dead-by-daylight-Default-icons)
 
 ## 저작권
 
+- 추천 세팅 내용의 저작권은 원작자(라스쿠 님)에게 있습니다.
 - 소스 코드, 디자인, 직접 작성한 내용: © 2026 [comrade920](https://github.com/comrade920). All rights reserved. 허락 없이 복제·수정·재배포할 수 없습니다. 자세한 내용은 [LICENSE](LICENSE)를 보세요.
 - Dead by Daylight의 게임 텍스트와 이미지 저작권은 Behaviour Interactive Inc.에 있습니다. 이 사이트는 Behaviour Interactive와 관련이 없는 비공식 팬 사이트입니다.
