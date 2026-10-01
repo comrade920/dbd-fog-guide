@@ -44,14 +44,17 @@ ik,ie=L('items','ko'),L('items','en')
 pk,pe=L('perks','ko'),L('perks','en')
 ak,ae=L('addons','ko'),L('addons','en')
 ok_,oe=L('offerings','ko'),L('offerings','en')
-out={'version':json.load(open(os.path.join(RAW,'versions_ko.json')))['perks']['version'],'killers':[],'survivors':[],'entries':[]}
+ICONS=json.load(open('icons.json')) if os.path.exists('icons.json') else {'map':{},'cols':{},'cell':64}
+IM=ICONS['map']
+def ic(img): return IM.get(os.path.splitext(os.path.basename(img or ''))[0].lower())
+out={'icons':{'cols':ICONS['cols']},'version':json.load(open(os.path.join(RAW,'versions_ko.json')))['perks']['version'],'killers':[],'survivors':[],'entries':[]}
 power_owner={}
 chars={}
 for key,c in ck.items():
     e=ce.get(key,{})
     cid=c['id']; chars[key]=cid
     rec={'id':cid,'ko':c['name'],'en':e.get('name',''),'d':clean(fill(c.get('bio'),c.get('tunables'),cid)),
-         'story':clean(fill(c.get('story'),None,cid)),'perks':c.get('perks') or [],'dlc':c.get('dlc')}
+         'story':clean(fill(c.get('story'),None,cid)),'perks':c.get('perks') or [],'dlc':c.get('dlc'),'ic':IM.get('char:'+cid)}
     if c['role']=='killer':
         it=c.get('item'); power_owner[it]=cid
         p=ik.get(it,{}); pen=ie.get(it,{})
@@ -62,11 +65,11 @@ def E(r): return {k:v for k,v in r.items() if v not in ('',None,[])}
 for key,p in pk.items():
     owner=chars.get(str(p.get('character'))) if p.get('character') is not None else None
     out['entries'].append(E({'c':'sp' if p['role']=='survivor' else 'kp','id':key,'ko':p['name'].strip(),'en':pe.get(key,{}).get('name','').strip(),
-        'd':clean(fill(p['description'],p.get('tunables'),key)),'o':owner}))
+        'd':clean(fill(p['description'],p.get('tunables'),key)),'o':owner,'ic':ic(p.get('image'))}))
 for key,a in ak.items():
     par=(a.get('parents') or [None])[0]
     r={'id':key,'ko':(a['name'] or '').strip(),'en':(ae.get(key,{}).get('name') or '').strip(),
-       'd':clean(fill(a['description'],a.get('tunables'),key)),'r':RAR.get(a.get('rarity'))}
+       'd':clean(fill(a['description'],a.get('tunables'),key)),'r':RAR.get(a.get('rarity')),'ic':ic(a.get('image'))}
     if a['type']=='poweraddon':
         r['c']='ka'; r['o']=power_owner.get(par)
     else:
@@ -76,11 +79,11 @@ for key,a in ak.items():
 for key,i in ik.items():
     if i['type']!='item' or not i.get('name'): continue
     out['entries'].append(E({'c':'it','id':key,'ko':i['name'].strip(),'en':(ie.get(key,{}).get('name') or '').strip(),
-        'd':clean(fill(i['description'],i.get('tunables'),key)),'r':RAR.get(i.get('rarity')),'it':i.get('item_type')}))
+        'd':clean(fill(i['description'],i.get('tunables'),key)),'r':RAR.get(i.get('rarity')),'it':i.get('item_type'),'ic':ic(i.get('image'))}))
 for key,o in ok_.items():
     if o.get('retired') or not o.get('name'): continue
     out['entries'].append(E({'c':'of','id':key,'ko':o['name'].strip(),'en':(oe.get(key,{}).get('name') or '').strip(),
-        'd':clean(fill(o['description'],o.get('tunables'),key)),'r':RAR.get(o.get('rarity')),'role':o.get('role') or 'shared'}))
+        'd':clean(fill(o['description'],o.get('tunables'),key)),'r':RAR.get(o.get('rarity')),'role':o.get('role') or 'shared','ic':ic(o.get('image'))}))
 json.dump(out,open('data.json','w'),ensure_ascii=False,separators=(',',':'))
 import collections
 print('version',out['version'],'killers',len(out['killers']),'survivors',len(out['survivors']))
@@ -92,3 +95,11 @@ print(os.path.getsize('data.json')//1024,'KB')
 if os.path.exists('template.html'):
     page=open('template.html').read().replace('__DATA__',open('data.json').read().replace('</','<\\/'))
     open('dbd-fog-guide.html','w').write(page); print('dbd-fog-guide.html 생성')
+# GitHub Pages 등 일반 호스팅용: 문서 뼈대(doctype, charset, viewport)를 갖춘 index.html
+if os.path.exists('dbd-fog-guide.html'):
+    body=open('dbd-fog-guide.html').read()
+    head=('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
+          '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+          '<meta name="description" content="데드 바이 데이라이트 기술·애드온·아이템·공물·캐릭터 한국어 검색 도감">\n'
+          '<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>\n</head>\n<body>\n')
+    open('index.html','w').write(head+body+'\n</body>\n</html>\n'); print('index.html 생성')

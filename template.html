@@ -7,7 +7,7 @@
 :root{
   --bg:#f3f2f4; --surface:#ffffff; --sunk:#e8e6ea; --line:#d6d2da;
   --fg:#1d1a20; --muted:#6a6470; --accent:#8e1f2c; --accent-fg:#ffffff; --hl:#7a1724;
-  --r0:#8a6a4c; --r1:#b8901c; --r2:#3f8a3a; --r3:#7d48ad; --r4:#c0346e; --r5:#c26a12; --t1:#9a7400; --t2:#2f7d2a; --t3:#7a3fb0;
+  --r0:#8a6a4c; --r1:#b8901c; --r2:#3f8a3a; --r3:#7d48ad; --r4:#c0346e; --r5:#c26a12; --tile:#2a2430; --t1:#9a7400; --t2:#2f7d2a; --t3:#7a3fb0;
   --sv:#2d6c8f; --kl:#8e1f2c;
   --f-display:"Nanum Myeongjo","AppleMyungjo",serif;
   --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
@@ -16,12 +16,12 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#131116; --surface:#1c1920; --sunk:#25212a; --line:#36303d;
   --fg:#ebe7ee; --muted:#9a93a1; --accent:#c8434f; --accent-fg:#160c0e; --hl:#f08a92;
-  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
+  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --tile:#2a2430; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
   --sv:#6bb1d6; --kl:#e0626c; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#131116; --surface:#1c1920; --sunk:#25212a; --line:#36303d;
   --fg:#ebe7ee; --muted:#9a93a1; --accent:#c8434f; --accent-fg:#160c0e; --hl:#f08a92;
-  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
+  --r0:#a98663; --r1:#d8b23e; --r2:#62b357; --r3:#a777d6; --r4:#e2609a; --r5:#e8913a; --tile:#2a2430; --t1:#e3bd45; --t2:#6cc561; --t3:#b98ae6;
   --sv:#6bb1d6; --kl:#e0626c; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -71,6 +71,14 @@ mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;b
 .g.addon::before{border-radius:4px}
 .g.char::before{border-radius:50%;inset:3px}
 .g.big{width:64px;height:64px}.g.big span{font-size:24px}.g.big.perk::before{inset:10px}
+/* 실제 아이콘: 게임처럼 등급색 타일 위에 흰 아이콘 */
+.g .ic{position:absolute;z-index:1;inset:0;background-repeat:no-repeat}
+.g.has-ic::before{background:color-mix(in srgb,var(--c,var(--muted)) 45%,var(--tile))}
+.g.perk.has-ic .ic{inset:2px}
+.g.addon.has-ic .ic{inset:4px}
+.g.char.has-ic::before{background:var(--tile)}
+.g.char.has-ic .ic{inset:3px;border-radius:50%}
+.g.big.addon.has-ic .ic{inset:6px}.g.big.perk.has-ic .ic{inset:4px}
 
 .detail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 150px);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;max-height:calc(100vh - 170px);overflow:auto;min-width:0}
 .dhead{display:flex;gap:16px;align-items:center}
@@ -156,7 +164,7 @@ const ALIAS={deadhard:'dh',borrowedtime:'bt',decisivestrike:'ds',sprintburst:'sb
 const chars={};
 D.killers.forEach(c=>chars[c.id]={...c,c:'k'});
 D.survivors.forEach(c=>chars[c.id]={...c,c:'s'});
-const all=[...D.entries, ...Object.values(chars).map(c=>({c:c.c,id:c.id,ko:c.ko,en:c.en,d:c.d,o:c.id}))];
+const all=[...D.entries, ...Object.values(chars).map(c=>({c:c.c,id:c.id,ko:c.ko,en:c.en,d:c.d,o:c.id,ic:c.ic}))];
 all.forEach((e,i)=>{e.i=i;e.key=e.c+':'+e.id;e.kn=norm(e.ko);e.ch=cho(e.kn);e.enn=norm(e.en);e.al=(ALIAS[e.enn]||'').split(' ').filter(Boolean);if(chars[e.id]&&chars[e.id].c==='k'){e.pn=norm(chars[e.id].power.ko);e.pen=norm(chars[e.id].power.en)}e.dn=norm(strip(e.d));
   const o=chars[e.o]; if(o){e.okn=norm(o.ko);e.oen=norm(o.en)}});
 const byKey=Object.fromEntries(all.map(e=>[e.key,e]));
@@ -178,6 +186,11 @@ function color(e){
 }
 function glyph(e,big){
   const shape=(e.c==='sp'||e.c==='kp')?'perk':(e.c==='k'||e.c==='s')?'char':'addon';
+  if(e.ic){
+    const [sh,i]=e.ic,[cols,rows]=D.icons.cols[sh];
+    const x=cols>1?(i%cols)/(cols-1)*100:0, y=rows>1?Math.floor(i/cols)/(rows-1)*100:0;
+    return `<span class="g ${shape} has-ic${big?' big':''}" style="--c:${color(e)}"><i class="ic" style="background-image:url(icons/${sh}.webp);background-size:${cols*100}% ${rows*100}%;background-position:${x}% ${y}%"></i></span>`;
+  }
   return `<span class="g ${shape}${big?' big':''}" style="--c:${color(e)}"><span>${esc([...e.ko][0]||'')}</span></span>`;
 }
 function ownerLabel(e){
