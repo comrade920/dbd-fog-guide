@@ -47,7 +47,9 @@ ok_,oe=L('offerings','ko'),L('offerings','en')
 ICONS=json.load(open('icons.json')) if os.path.exists('icons.json') else {'map':{},'cols':{},'cell':64}
 IM=ICONS['map']
 def ic(img): return IM.get(os.path.splitext(os.path.basename(img or ''))[0].lower())
-out={'icons':{'cols':ICONS['cols']},'version':json.load(open(os.path.join(RAW,'versions_ko.json')))['perks']['version'],'killers':[],'survivors':[],'entries':[]}
+import hashlib
+IVER={n:hashlib.md5(open(f'icons/{n}.webp','rb').read()).hexdigest()[:8] for n in ICONS['cols'] if os.path.exists(f'icons/{n}.webp')}  # 아이콘 파일이 바뀌면 주소도 바뀌게(브라우저 캐시 방지)
+out={'icons':{'cols':ICONS['cols'],'v':IVER},'version':json.load(open(os.path.join(RAW,'versions_ko.json')))['perks']['version'],'killers':[],'survivors':[],'entries':[]}
 power_owner={}
 chars={}
 for key,c in ck.items():

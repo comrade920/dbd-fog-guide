@@ -340,7 +340,7 @@ function glyph(e,big){
   if(e.ic){
     const [sh,i]=e.ic,[cols,rows]=D.icons.cols[sh];
     const x=cols>1?(i%cols)/(cols-1)*100:0, y=rows>1?Math.floor(i/cols)/(rows-1)*100:0;
-    return `<span class="g ${shape} has-ic${big?' big':''}" style="--c:${color(e)}"><i class="ic" style="background-image:url(icons/${sh}.webp);background-size:${cols*100}% ${rows*100}%;background-position:${x}% ${y}%"></i></span>`;
+    return `<span class="g ${shape} has-ic${big?' big':''}" style="--c:${color(e)}"><i class="ic" style="background-image:url(icons/${sh}.webp?v=${(D.icons.v||{})[sh]||''});background-size:${cols*100}% ${rows*100}%;background-position:${x}% ${y}%"></i></span>`;
   }
   return `<span class="g ${shape}${big?' big':''}" style="--c:${color(e)}"><span>${esc([...e.ko][0]||'')}</span></span>`;
 }
