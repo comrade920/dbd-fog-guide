@@ -33,13 +33,14 @@ tail -5 logs/auto_update.log   # '올림 완료' 또는 '변경 없음'이면 �
 | `update.sh` | `fetch.sh` + `build2.py` |
 | `auto_update.sh` | `update.sh` 후 바뀐 내용이 있으면 GitHub에 올림 |
 | `make_icons.py` | 아이콘 이미지를 묶음 파일(`icons/*.webp`)로 생성 |
+| `add_icons.py` | 빠진 아이콘을 기존 묶음 파일에 추가 (공식 위키에서 받은 이미지, `icons_src/`는 git 제외) |
 
 ## 출처
 
 - 추천 세팅: 라스쿠 님 [자주쓰는 살인마 세팅 업데이트(v2026_2차)](https://gall.dcinside.com/mgallery/board/view/?id=dbd&no=2606672) (디시인사이드 데드바이데이라이트 마이너 갤러리). 원문 이미지를 텍스트로 옮기고 이름을 게임 표기로 맞춤. 원문이 바뀌면 `settings_src/raw.txt`를 고친 뒤 `python3 settings_src/match.py` 결과를 `settings.json`에 반영
 
 - 게임 데이터: [dbd.tricky.lol](https://dbd.tricky.lol)
-- 아이콘: [Icon-Pack-Provider/Dead-by-daylight-Default-icons](https://github.com/Icon-Pack-Provider/Dead-by-daylight-Default-icons)
+- 아이콘: [Icon-Pack-Provider/Dead-by-daylight-Default-icons](https://github.com/Icon-Pack-Provider/Dead-by-daylight-Default-icons), 빠진 것은 [공식 DBD 위키](https://deadbydaylight.wiki.gg)
 
 - 앱 아이콘: 배경 사진 "Night trees forest"(Jon Sullivan, 퍼블릭 도메인), 글꼴 Cinzel(SIL OFL 1.1). 자세한 내용은 `appicon_src/CREDITS.md`
 
