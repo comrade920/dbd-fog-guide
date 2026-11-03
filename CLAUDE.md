@@ -49,7 +49,7 @@ Dead by Daylight(데바데) 기술·애드온·아이템·공물·캐릭터를 �
   ```
   - 새 아이콘 출처: 공식 위키 deadbydaylight.wiki.gg. 이미지 이름 규칙 IconPerks_xxx / IconAddon_xxx / IconItems_xxx / IconFavors_xxx(게임 경로의 T_UI_ 접두사, iconsPerks 등은 정규화 필요, 철자 차이 있음), 초상화 <id>_<이름>_Portrait.png. 위키 API: `/api.php?action=query&list=allimages&aiprefix=IconPerks&aiprop=url&ailimit=500&format=json`
   - 위키는 Cloudflare 때문에 curl이 막힐 수 있음 → 막히면 사용자가 브라우저로 받아 icons_src/wiki에 넣도록 안내
-  - 현재 빈 것(위키에도 없음): @#Addon_GasBomb_19a/20a/20b(원본 데이터 미완성), Magnetized Manacles, Eyes In The Sky
+  - 현재 빈 것(위키에도 없음): @#Addon_GasBomb_19a/20a/20b(원본 데이터 미완성), Eyes In The Sky
 - 추천 세팅 원문이 바뀌면: raw.txt 수정 → `python3 settings_src/match.py` → `python3 build2.py raw`
 
 ## 환경 메모
